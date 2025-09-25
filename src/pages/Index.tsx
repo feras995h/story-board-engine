@@ -1,12 +1,30 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Header } from "@/components/ui/header";
+import { HeroSection } from "@/components/ui/hero-section";
+import { AboutSection } from "@/components/ui/about-section";
+import { AdminDashboard } from "@/components/ui/admin-dashboard";
 
 const Index = () => {
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header onOpenAdmin={() => setIsAdminOpen(true)} />
+      
+      <main>
+        <section id="home">
+          <HeroSection />
+        </section>
+        
+        <section id="about">
+          <AboutSection />
+        </section>
+      </main>
+      
+      <AdminDashboard 
+        isOpen={isAdminOpen} 
+        onClose={() => setIsAdminOpen(false)} 
+      />
     </div>
   );
 };
