@@ -4,6 +4,8 @@ interface LanguageContextType {
   language: 'ar' | 'en';
   setLanguage: (lang: 'ar' | 'en') => void;
   t: (key: string, fallback: string) => string;
+  isRTL: boolean;
+  translations: typeof translations;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -48,6 +50,17 @@ const translations = {
   subject: { ar: 'الموضوع', en: 'Subject' },
   message: { ar: 'الرسالة', en: 'Message' },
   namePlaceholder: { ar: 'اسمك الكامل', en: 'Your full name' },
+  
+  // Social Sharing
+  share: { ar: 'مشاركة', en: 'Share' },
+  shareOnFacebook: { ar: 'مشاركة على فيسبوك', en: 'Share on Facebook' },
+  shareOnTwitter: { ar: 'مشاركة على تويتر', en: 'Share on Twitter' },
+  shareOnLinkedIn: { ar: 'مشاركة على لينكد إن', en: 'Share on LinkedIn' },
+  shareOnWhatsApp: { ar: 'مشاركة على واتساب', en: 'Share on WhatsApp' },
+  copyLink: { ar: 'نسخ الرابط', en: 'Copy Link' },
+  copied: { ar: 'تم النسخ', en: 'Copied' },
+  linkCopied: { ar: 'تم نسخ الرابط بنجاح', en: 'Link copied successfully' },
+  copyError: { ar: 'فشل في نسخ الرابط', en: 'Failed to copy link' },
   emailPlaceholder: { ar: 'your.email@example.com', en: 'your.email@example.com' },
   subjectPlaceholder: { ar: 'موضوع رسالتك', en: 'Subject of your message' },
   messagePlaceholder: { ar: 'اكتب رسالتك هنا...', en: 'Write your message here...' },
@@ -72,19 +85,52 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') as 'ar' | 'en' | null;
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
-      document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.lang = savedLanguage;
-    }
+    // Load language preference from API
+    loadLanguagePreference();
   }, []);
 
-  const handleSetLanguage = (lang: 'ar' | 'en') => {
+  const loadLanguagePreference = async () => {
+    try {
+      const response = await fetch('/api/settings/language', {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const savedLanguage = data.language as 'ar' | 'en';
+        if (savedLanguage) {
+          setLanguage(savedLanguage);
+          document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+          document.documentElement.lang = savedLanguage;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading language preference:', error);
+      // Default to Arabic if API fails
+      setLanguage('ar');
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'ar';
+    }
+  };
+
+  const handleSetLanguage = async (lang: 'ar' | 'en') => {
     setLanguage(lang);
-    localStorage.setItem('language', lang);
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
+    
+    // Save language preference to API
+    try {
+      await fetch('/api/settings/language', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ language: lang }),
+      });
+    } catch (error) {
+      console.error('Error saving language preference:', error);
+    }
   };
 
   const t = (key: string, fallback: string) => {
@@ -96,7 +142,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider value={{ 
+      language, 
+      setLanguage: handleSetLanguage, 
+      t,
+      isRTL: language === 'ar',
+      translations
+    }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -1,8 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Leaf, Target, MessageSquare, TreePine, Globe, Users, Recycle } from "lucide-react";
+import { Leaf, Target, MessageSquare, TreePine, Globe, Users, Recycle, Calendar } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
 const getSections = (t: (key: string, fallback: string) => string) => [
+  {
+    icon: Calendar,
+    titleAr: "تاريخ التأسيس",
+    titleEn: "Establishment Date",
+    contentAr: "تأسست جمعية المحيط الأخضر للحلول البيئية في 12 نوفمبر 2024، لتكون منارة للعمل البيئي والتنمية المستدامة في المنطقة.",
+    contentEn: "Green Ocean Environmental Solutions Association was established on November 12, 2024, to be a beacon for environmental work and sustainable development in the region."
+  },
   {
     icon: TreePine,
     titleAr: "ثقافتنا البيئية",
@@ -52,33 +59,35 @@ export function AboutSection() {
   const sections = getSections(t);
   
   return (
-    <section className="py-20 px-4">
+    <section className="py-12 sm:py-16 md:py-20 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
             <span className="bg-gradient-hero bg-clip-text text-transparent">
               {t('aboutTitle', 'من نحن')}
             </span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
             {t('aboutDescription', 'جمعية المحيط الأخضر للحلول البيئية - رائدة في مجال الحلول المستدامة والوعي البيئي')}
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {sections.map((section, index) => (
             <Card 
               key={index} 
               className="bg-gradient-card border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-elegant group"
             >
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-primary group-hover:text-primary-light transition-colors">
-                  <section.icon className="w-6 h-6" />
-                  {language === 'ar' ? section.titleAr : section.titleEn}
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 sm:gap-3 text-primary group-hover:text-primary-light transition-colors text-sm sm:text-base">
+                  <section.icon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                  <span className="leading-tight">
+                    {language === 'ar' ? section.titleAr : section.titleEn}
+                  </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground leading-relaxed">
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                   {language === 'ar' ? section.contentAr : section.contentEn}
                 </p>
               </CardContent>

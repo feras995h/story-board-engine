@@ -1,17 +1,13 @@
-import { useState } from "react";
 import { Header } from "@/components/ui/header";
 import { HeroSection } from "@/components/ui/hero-section";
 import { AboutSection } from "@/components/ui/about-section";
 import { ProjectsSection } from "@/components/ui/projects-section";
 import { ContactSection } from "@/components/ui/contact-section";
-import { AdminDashboard } from "@/components/ui/admin-dashboard";
 
 const Index = () => {
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background">
-      <Header onOpenAdmin={() => setIsAdminOpen(true)} />
+      <Header />
       
       <main>
         <section id="home">
@@ -30,11 +26,6 @@ const Index = () => {
           <ContactSection />
         </section>
       </main>
-      
-      <AdminDashboard 
-        isOpen={isAdminOpen} 
-        onClose={() => setIsAdminOpen(false)} 
-      />
     </div>
   );
 };

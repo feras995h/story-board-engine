@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, Send, Facebook, Instagram, Twitter } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Facebook, Instagram, Twitter, Linkedin, Youtube } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useSettings } from "@/contexts/settings-context";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export function ContactSection() {
   const { language, t } = useLanguage();
   const { toast } = useToast();
+  const { socialLinks, basicData } = useSettings();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,58 +41,60 @@ export function ContactSection() {
       icon: Mail,
       titleAr: "البريد الإلكتروني",
       titleEn: "Email",
-      valueAr: "info@greenocean.ly",
-      valueEn: "info@greenocean.ly"
+      valueAr: basicData.email,
+      valueEn: basicData.email
     },
     {
       icon: Phone,
       titleAr: "الهاتف",
       titleEn: "Phone",
-      valueAr: "+218 91 234 5678",
-      valueEn: "+218 91 234 5678"
+      valueAr: basicData.phone,
+      valueEn: basicData.phone
     },
     {
       icon: MapPin,
       titleAr: "العنوان",
       titleEn: "Address",
-      valueAr: "طرابلس، ليبيا",
-      valueEn: "Tripoli, Libya"
+      valueAr: basicData.address,
+      valueEn: basicData.address
     }
   ];
 
-  const socialLinks = [
-    { icon: Facebook, name: "Facebook", url: "#" },
-    { icon: Instagram, name: "Instagram", url: "#" },
-    { icon: Twitter, name: "Twitter", url: "#" }
-  ];
+  const socialLinksData = [
+    { icon: Facebook, name: "Facebook", url: socialLinks.facebook || "#" },
+    { icon: Instagram, name: "Instagram", url: socialLinks.instagram || "#" },
+    { icon: Twitter, name: "Twitter", url: socialLinks.twitter || "#" },
+    { icon: Linkedin, name: "LinkedIn", url: socialLinks.linkedin || "#" },
+    { icon: Youtube, name: "YouTube", url: socialLinks.youtube || "#" }
+  ].filter(social => social.url !== "#"); // Only show social links that have URLs
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-12 sm:py-16 md:py-20 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
             <span className="bg-gradient-hero bg-clip-text text-transparent">
               {t('contact', 'تواصل معنا')}
             </span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
             {t('contactDesc', 'نحن هنا للإجابة على استفساراتكم ومساعدتكم في رحلتكم البيئية')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
           {/* Contact Form */}
           <Card className="bg-gradient-card border-border/50">
-            <CardHeader>
-              <CardTitle className="text-primary">
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="text-primary text-lg sm:text-xl">
                 {t('sendMessage', 'أرسل رسالة')}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">
+                    <Label htmlFor="name" className="text-sm">
                       {t('name', 'الاسم')}
                     </Label>
                     <Input
@@ -100,11 +104,11 @@ export function ContactSection() {
                       onChange={handleChange}
                       placeholder={t('namePlaceholder', 'اسمك الكامل')}
                       required
-                      className="bg-input/50 border-border/50 focus:border-primary"
+                      className="bg-input/50 border-border/50 focus:border-primary text-sm sm:text-base"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">
+                    <Label htmlFor="email" className="text-sm">
                       {t('email', 'البريد الإلكتروني')}
                     </Label>
                     <Input
@@ -115,13 +119,13 @@ export function ContactSection() {
                       onChange={handleChange}
                       placeholder={t('emailPlaceholder', 'your.email@example.com')}
                       required
-                      className="bg-input/50 border-border/50 focus:border-primary"
+                      className="bg-input/50 border-border/50 focus:border-primary text-sm sm:text-base"
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="subject">
+                  <Label htmlFor="subject" className="text-sm">
                     {t('subject', 'الموضوع')}
                   </Label>
                   <Input
@@ -131,12 +135,12 @@ export function ContactSection() {
                     onChange={handleChange}
                     placeholder={t('subjectPlaceholder', 'موضوع رسالتك')}
                     required
-                    className="bg-input/50 border-border/50 focus:border-primary"
+                    className="bg-input/50 border-border/50 focus:border-primary text-sm sm:text-base"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="message">
+                  <Label htmlFor="message" className="text-sm">
                     {t('message', 'الرسالة')}
                   </Label>
                   <Textarea
@@ -146,17 +150,17 @@ export function ContactSection() {
                     onChange={handleChange}
                     placeholder={t('messagePlaceholder', 'اكتب رسالتك هنا...')}
                     required
-                    rows={6}
-                    className="bg-input/50 border-border/50 focus:border-primary resize-none"
+                    rows={5}
+                    className="bg-input/50 border-border/50 focus:border-primary resize-none text-sm sm:text-base"
                   />
                 </div>
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-hero hover:opacity-90 transition-opacity"
-                  size="lg"
+                  className="w-full bg-gradient-hero hover:opacity-90 transition-opacity text-sm sm:text-base"
+                  size="default"
                 >
-                  <Send className="w-4 h-4 mr-2" />
+                  <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   {t('sendMessage', 'إرسال الرسالة')}
                 </Button>
               </form>
@@ -164,24 +168,24 @@ export function ContactSection() {
           </Card>
 
           {/* Contact Information */}
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             <Card className="bg-gradient-card border-border/50">
-              <CardHeader>
-                <CardTitle className="text-primary">
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-primary text-lg sm:text-xl">
                   {t('contactInfo', 'معلومات التواصل')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 sm:space-y-6">
                 {contactInfo.map((info, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <info.icon className="w-5 h-5 text-primary" />
+                  <div key={index} className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <info.icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium text-foreground text-sm sm:text-base">
                         {language === 'ar' ? info.titleAr : info.titleEn}
                       </h4>
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground text-xs sm:text-sm break-words">
                         {language === 'ar' ? info.valueAr : info.valueEn}
                       </p>
                     </div>
@@ -191,56 +195,26 @@ export function ContactSection() {
             </Card>
 
             <Card className="bg-gradient-card border-border/50">
-              <CardHeader>
-                <CardTitle className="text-primary">
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-primary text-lg sm:text-xl">
                   {t('followUs', 'تابعنا')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-4">
-                  {socialLinks.map((social, index) => (
+                <div className="flex flex-wrap gap-3 sm:gap-4">
+                  {socialLinksData.map((social, index) => (
                     <Button
                       key={index}
                       variant="outline"
                       size="icon"
-                      className="w-12 h-12 hover:border-primary hover:text-primary transition-colors"
+                      className="w-10 h-10 sm:w-12 sm:h-12 hover:border-primary hover:text-primary transition-colors"
                       asChild
                     >
-                      <a href={social.url} aria-label={social.name}>
-                        <social.icon className="w-5 h-5" />
+                      <a href={social.url} aria-label={social.name} target="_blank" rel="noopener noreferrer">
+                        <social.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </a>
                     </Button>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card border-border/50">
-              <CardHeader>
-                <CardTitle className="text-primary">
-                  {t('workingHours', 'ساعات العمل')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t('sunday', 'الأحد')} - {t('thursday', 'الخميس')}
-                  </span>
-                  <span className="text-foreground">8:00 - 17:00</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t('friday', 'الجمعة')}
-                  </span>
-                  <span className="text-foreground">14:00 - 17:00</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t('saturday', 'السبت')}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {t('closed', 'مغلق')}
-                  </span>
                 </div>
               </CardContent>
             </Card>
