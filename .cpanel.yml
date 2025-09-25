@@ -2,7 +2,7 @@
 deployment:
   tasks:
     # Install dependencies
-    - export DEPLOYPATH=/home/username/public_html/
+    - export DEPLOYPATH=/home/goesly/public_html/
     - /bin/cp -R dist/* $DEPLOYPATH
     # Copy server files
     - /bin/cp server.js $DEPLOYPATH
