@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Header } from "@/components/ui/header";
 import { HeroSection } from "@/components/ui/hero-section";
 import { AboutSection } from "@/components/ui/about-section";
+import { ProjectsSection } from "@/components/ui/projects-section";
+import { ContactSection } from "@/components/ui/contact-section";
 import { AdminDashboard } from "@/components/ui/admin-dashboard";
 
 const Index = () => {
@@ -18,6 +20,14 @@ const Index = () => {
         
         <section id="about">
           <AboutSection />
+        </section>
+        
+        <section id="projects">
+          <ProjectsSection />
+        </section>
+        
+        <section id="contact">
+          <ContactSection />
         </section>
       </main>
       

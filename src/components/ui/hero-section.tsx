@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, Leaf } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 import heroBackground from "@/assets/hero-background.jpg";
 
 export function HeroSection() {
+  const { t } = useLanguage();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -15,30 +19,36 @@ export function HeroSection() {
       
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-float">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
           <span className="bg-gradient-hero bg-clip-text text-transparent">
-            جمعية المحيط الأخضر للحلول البيئية
+            {t('heroTitle', 'جمعية المحيط الأخضر')}
+          </span>
+          <br />
+          <span className="text-3xl md:text-4xl text-foreground/90">
+            {t('heroSubtitle', 'للحلول البيئية')}
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-          معاً نحو مستقبل أخضر ومستدام للأجيال القادمة
+        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
+          {t('heroDescription', 'نعمل معaً من أجل بيئة صحية ومستدامة من خلال الحلول المبتكرة والوعي البيئي المجتمعي')}
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4">
           <Button 
-            variant="default" 
-            size="lg"
-            className="min-w-[150px] animate-glow bg-primary hover:bg-primary-light text-primary-foreground font-semibold"
+            size="lg" 
+            className="bg-gradient-hero hover:opacity-90 transition-all duration-300 shadow-glow hover:shadow-xl group"
           >
-            مشاريعنا
+            <Leaf className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+            {t('learnMore', 'اعرف المزيد')}
           </Button>
+          
           <Button 
             variant="outline" 
             size="lg"
-            className="min-w-[150px] border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold"
+            className="border-primary/30 text-primary hover:border-primary hover:bg-primary/5 transition-all duration-300"
           >
-            اكتشف المزيد
+            {t('joinUs', 'انضم إلينا')}
+            <ArrowLeft className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </div>

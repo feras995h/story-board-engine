@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Menu, Settings } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/language-context";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 
 interface HeaderProps {
   onOpenAdmin?: () => void;
@@ -8,12 +10,13 @@ interface HeaderProps {
 
 export function Header({ onOpenAdmin }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   const menuItems = [
-    { label: "الرئيسية", href: "#home" },
-    { label: "من نحن", href: "#about" },
-    { label: "مشاريعنا", href: "#projects" },
-    { label: "اتصل بنا", href: "#contact" },
+    { label: t('home', 'الرئيسية'), href: "#home" },
+    { label: t('about', 'من نحن'), href: "#about" },
+    { label: t('projects', 'مشاريعنا'), href: "#projects" },
+    { label: t('contact', 'تواصل معنا'), href: "#contact" },
   ];
 
   return (
@@ -23,7 +26,7 @@ export function Header({ onOpenAdmin }: HeaderProps) {
           {/* Logo */}
           <div className="flex items-center">
             <h2 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              المحيط الأخضر
+              {t('heroTitle', 'المحيط الأخضر')}
             </h2>
           </div>
 
@@ -42,6 +45,8 @@ export function Header({ onOpenAdmin }: HeaderProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            
             {onOpenAdmin && (
               <Button
                 variant="ghost"
@@ -50,7 +55,7 @@ export function Header({ onOpenAdmin }: HeaderProps) {
                 className="hidden md:flex items-center gap-2 text-muted-foreground hover:text-primary"
               >
                 <Settings className="w-4 h-4" />
-                لوحة التحكم
+                {t('adminPanel', 'لوحة التحكم')}
               </Button>
             )}
             
@@ -81,18 +86,18 @@ export function Header({ onOpenAdmin }: HeaderProps) {
                 </a>
               ))}
               {onOpenAdmin && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    onOpenAdmin();
-                    setIsMenuOpen(false);
-                  }}
-                  className="justify-start gap-2 text-muted-foreground hover:text-primary px-2"
-                >
-                  <Settings className="w-4 h-4" />
-                  لوحة التحكم
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      onOpenAdmin();
+                      setIsMenuOpen(false);
+                    }}
+                    className="justify-start gap-2 text-muted-foreground hover:text-primary px-2"
+                  >
+                    <Settings className="w-4 h-4" />
+                    {t('adminPanel', 'لوحة التحكم')}
+                  </Button>
               )}
             </nav>
           </div>
