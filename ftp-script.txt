@@ -1,0 +1,19 @@
+open goesociety.ly
+public_html
+Feras5547750#
+binary
+cd public_html
+lcd dist
+mput *
+cd ..
+put server.js
+put package.json
+put package-lock.json
+put .htaccess
+rename .env.production .env
+mkdir database
+cd database
+lcd ../database
+mput *
+cd ..
+quit
