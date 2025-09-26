@@ -1,17 +1,34 @@
 ---
 deployment:
   tasks:
-    # Install dependencies
+    # Build the project first
     - export DEPLOYPATH=/home/goesly/public_html/
+    - npm install
+    - npm run build
+    
+    # Copy built files to deployment path
     - /bin/cp -R dist/* $DEPLOYPATH
-    # Copy server files
+    
+    # Copy server and configuration files
     - /bin/cp server.js $DEPLOYPATH
     - /bin/cp package.json $DEPLOYPATH
     - /bin/cp package-lock.json $DEPLOYPATH
-    - /bin/cp .env $DEPLOYPATH
-    # Install Node.js dependencies on server
-    - cd $DEPLOYPATH && npm install --production
+    - /bin/cp .env.production $DEPLOYPATH/.env
+    - /bin/cp .htaccess $DEPLOYPATH
+    
+    # Copy database files if needed
+    - /bin/cp -R database/ $DEPLOYPATH/database/
+    
+    # Install production dependencies
+    - cd $DEPLOYPATH && npm install --production --no-dev
+    
     # Set proper permissions
     - find $DEPLOYPATH -type f -exec chmod 644 {} \;
     - find $DEPLOYPATH -type d -exec chmod 755 {} \;
     - chmod +x $DEPLOYPATH/server.js
+    
+    # Clean up unnecessary files
+    - rm -f $DEPLOYPATH/vite.config.ts
+    - rm -f $DEPLOYPATH/tsconfig*.json
+    - rm -f $DEPLOYPATH/tailwind.config.ts
+    - rm -f $DEPLOYPATH/postcss.config.js

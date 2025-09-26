@@ -15,23 +15,35 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Trust proxy for shared hosting
+app.set('trust proxy', true);
 
-// Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, 'dist')));
+// Middleware
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL, process.env.DOMAIN_URL].filter(Boolean)
+    : true,
+  credentials: true
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files from the dist directory with proper headers
+app.use(express.static(path.join(__dirname, 'dist'), {
+  maxAge: process.env.NODE_ENV === 'production' ? '1y' : '0',
+  etag: true,
+  lastModified: true
+}));
 
 // Database connection configuration
 const dbConfig = {
-  host: process.env.VITE_MYSQL_HOST || 'localhost',
-  port: process.env.VITE_MYSQL_PORT || 3306,
-  user: process.env.VITE_MYSQL_USER || 'root',
-  password: process.env.VITE_MYSQL_PASSWORD || '',
-  database: process.env.VITE_MYSQL_DATABASE || 'storyboard',
+  host: process.env.VITE_MYSQL_HOST || process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.VITE_MYSQL_PORT || process.env.DB_PORT || '3306'),
+  user: process.env.VITE_MYSQL_USER || process.env.DB_USER || 'root',
+  password: process.env.VITE_MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
+  database: process.env.VITE_MYSQL_DATABASE || process.env.DB_NAME || 'storyboard',
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: process.env.NODE_ENV === 'production' ? 5 : 10,
   queueLimit: 0
 };
 
@@ -48,7 +60,7 @@ async function testConnection() {
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
     console.error('🔧 Please ensure MySQL is running and credentials are correct');
-    process.exit(1); // Exit if database connection fails
+    return false; // Return false instead of exiting
   }
 }
 
@@ -142,39 +154,70 @@ app.get('*', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
+  const isDevelopment = process.env.NODE_ENV !== 'production';
   res.status(500).json({ 
-    status: 'ERROR', 
-    message: 'Internal server error' 
+    error: 'Internal server error',
+    ...(isDevelopment && { details: err.message, stack: err.stack })
   });
 });
 
-// Start server
+// Graceful shutdown
+const gracefulShutdown = () => {
+  console.log('🔄 Received shutdown signal, closing server gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed successfully');
+    if (pool) {
+      pool.end(() => {
+        console.log('✅ Database pool closed');
+        process.exit(0);
+      });
+    } else {
+      process.exit(0);
+    }
+  });
+};
 
 async function startServer() {
   try {
     // Test database connection before starting server
-    await testConnection();
+    const isDbConnected = await testConnection();
     
-    app.listen(PORT, () => {
-      console.log(`🚀 Story Board Engine Server running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🗄️  Database: MySQL (Required)`);
-      console.log(`🌐 Server URL: http://localhost:${PORT}`);
+    if (!isDbConnected) {
+      console.warn('⚠️  Database connection failed, but starting server anyway for static files');
+      console.warn('📝 Note: Database-dependent features will not work until connection is established');
+    }
+    
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📁 Serving static files from: ${path.join(__dirname, 'dist')}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      if (isDbConnected) {
+        console.log('✅ Database connected and ready');
+      } else {
+        console.log('⚠️  Server running without database connection');
+      }
     });
+
+    // Handle server errors
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use`);
+        process.exit(1);
+      } else {
+        console.error('❌ Server error:', error);
+      }
+    });
+
+    // Graceful shutdown handlers
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
+    
+    return server;
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\n🔄 Shutting down gracefully...');
-  pool.end(() => {
-    console.log('✅ Database connections closed');
-    process.exit(0);
-  });
-});
 
 // Start the server
 startServer();
